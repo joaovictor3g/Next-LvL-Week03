@@ -1,40 +1,16 @@
-import express, { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import Orphanage from './models/Orphanage';
+import express from 'express';
+import path from 'path';
+import 'express-async-errors';
 
 import './database/connection';
+import routes from './routes';
+import errorHandler from './errors/handler';
 
 const app = express();
 
 app.use(express.json());
-app.post('/orphanages', async(request: Request, response: Response) => {
-    const {
-        name, 
-        latitude,
-        longitude,
-        about,
-        instructions,
-        opening_hours,
-        open_on_weekends
-
-    } = request.body;
-
-    const orphanagesRepository = getRepository(Orphanage);
-
-    const orphanage = orphanagesRepository.create({
-        name, 
-        latitude,
-        longitude,
-        about,
-        instructions,
-        opening_hours,
-        open_on_weekends
-    });
-
-    await orphanagesRepository.save(orphanage);
-
-    return;
-
-});
+app.use(routes);
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
+app.use(errorHandler);
 
 app.listen(3333); 
